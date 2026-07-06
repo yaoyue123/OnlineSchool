@@ -1,383 +1,1309 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>学员请假</title>
-  <link rel="stylesheet" href="style.css?v=1.3">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学员请假</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        #app {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            position: relative;
+            overflow: hidden;
+        }
+        @media (max-width: 480px) {
+            #app { max-width: 100%; }
+        }
+        
+        /* 通用头部样式 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f0f4f8;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header .icons {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-weight: normal;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .header .icons span { user-select: none; }
+        .header .close {
+            color: #999;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* 页面容器 */
+        .page {
+            display: none;
+            padding-bottom: 20px;
+        }
+        .page.active {
+            display: block;
+        }
+
+        /* --- 列表页样式 (Page 1) --- */
+        .summary-section {
+            background: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        .summary-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .summary-text .warning {
+            color: #f39c12;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .btn-blue {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .btn-green {
+            background-color: #7ed321;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 30px;
+            border-radius: 4px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .list-container {
+            padding: 15px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #fad390;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .card-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .tag-success {
+            background-color: #e8f5e9;
+            color: #4caf50;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 5px;
+            border: 1px solid #4caf50;
+        }
+        .grey-text { color: #999; font-size: 13px;}
+        .footer-line {
+            text-align: center;
+            color: #ccc;
+            font-size: 12px;
+            position: relative;
+            margin-top: 30px;
+        }
+        .footer-line::before, .footer-line::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #ddd;
+        }
+        .footer-line::before { left: 0; }
+        .footer-line::after { right: 0; }
+
+        /* --- 详情页样式 (Page 2) --- */
+        .detail-status {
+            background: #fff;
+            padding: 15px;
+            font-size: 14px;
+        }
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .cyan-text { color: #00b894; }
+        .approval-info {
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+            margin-top: 10px;
+        }
+
+        .form-list {
+            background: #fff;
+            margin-top: 10px;
+        }
+        .form-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+            align-items: center;
+        }
+        .form-label { color: #666; white-space: nowrap; }
+        .form-value {
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+            width: 100%;
+            margin-left: 10px;
+            padding: 2px 5px;
+        }
+
+        .notice-box {
+            background-color: #fff9e6;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #00b894;
+        }
+        .notice-box span { color: #d35400; font-weight: bold;}
+
+        .time-card {
+            background: #fff;
+            margin: 10px 15px;
+            border: 1px solid #00b894;
+            border-radius: 6px;
+            padding: 10px;
+        }
+        .time-card-header {
+            color: #00b894;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .time-stats {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .time-stats span { color: #e74c3c; }
+        .time-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .time-tag {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .upload-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+            align-items: flex-start;
+            background: #fff;
+        }
+        .upload-box {
+            width: 60px;
+            height: 60px;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ccc;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .upload-box img { width: 100%; height: 100%; object-fit: cover;}
+        
+        .submit-btn {
+            background-color: #00b894;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin: 20px 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .required { color: #e74c3c; margin-right: 3px;}
+
+        /* ==================== 配置抽屉样式 ==================== */
+        .float-config-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 16px;
+            background-color: rgba(0, 150, 136, 0.8);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #app.screenshot-mode .float-config-btn {
+            display: none !important;
+        }
+
+        .config-drawer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(18, 18, 20, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            color: #e0e0e0;
+            animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .config-drawer.open { display: flex; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .drawer-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .drawer-header h3 { font-size: 15px; color: #ffffff; }
+        .btn-close-drawer {
+            background: none; border: none; color: #aaaaaa;
+            font-size: 18px; cursor: pointer;
+        }
+
+        .drawer-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .drawer-tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #888888;
+            padding: 12px 0;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            text-align: center;
+        }
+        .drawer-tab-btn.active {
+            color: #009688;
+            border-bottom-color: #009688;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .drawer-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .drawer-tab-panel { display: none; }
+        .drawer-tab-panel.active { display: block; }
+
+        .drawer-form-group { margin-bottom: 14px; }
+        .drawer-form-row { display: flex; gap: 10px; }
+        .drawer-form-row .drawer-form-group { flex: 1; }
+
+        .drawer-form-group label {
+            display: block;
+            font-size: 11.5px;
+            color: #888888;
+            margin-bottom: 5px;
+        }
+        .drawer-form-group input[type="text"],
+        .drawer-form-group input[type="number"],
+        .drawer-form-group textarea,
+        .drawer-form-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 8px 10px;
+            color: #ffffff;
+            font-size: 13px;
+        }
+        .drawer-form-group input:focus,
+        .drawer-form-group textarea:focus,
+        .drawer-form-group select:focus {
+            outline: none;
+            border-color: #009688;
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        .drawer-btn-group {
+            display: flex;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            padding: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .page-toggle-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #888888;
+            padding: 6px 0;
+            font-size: 12.5px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .page-toggle-btn.active {
+            background-color: #009688;
+            color: #ffffff;
+        }
+
+        .drawer-section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 6px;
+        }
+        .cfg-btn-sm {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .cfg-day-edit-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .cfg-btn-delete-day {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: none;
+            border: none;
+            color: #ff4d4f;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .cfg-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-top: 6px;
+        }
+        .cfg-checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            color: #cccccc;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+        }
+        .cfg-checkbox-label input { margin-right: 3px; }
+        .cfg-checkbox-label.checked {
+            border-color: #009688;
+            background-color: rgba(0, 150, 136, 0.1);
+            color: #ffffff;
+        }
+
+        .drawer-footer {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .drawer-btn {
+            width: 100%;
+            padding: 10px 0;
+            border-radius: 4px;
+            font-size: 13.5px;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        .btn-close-only { background-color: #009688; color: #ffffff; }
+        .btn-screenshot { background-color: #2b85e4; color: #ffffff; }
+        .btn-reset-data { background-color: #331c1d; color: #ff4d4f; border: 1px solid rgba(255, 77, 79, 0.15); }
+
+        .detail-padding { padding-bottom: 75px; }
+    </style>
 </head>
 <body>
 
-  <div id="app">
-    
-    <!-- ==================== 页面一：列表页 ==================== -->
-    <div id="pageList" class="page-view active">
-      <!-- 微信内嵌导航栏 -->
-      <header class="wx-header">
-        <div class="header-left">
-          <span class="header-back disabled">&lt;</span>
-          <span class="header-forward disabled">&gt;</span>
-        </div>
-        <div class="header-title">学员请假</div>
-        <div class="header-right">✕</div>
-      </header>
+<div id="app">
 
-      <div class="phone-scroll-content">
-        <!-- 统计信息 -->
-        <div class="list-stat-box">
-          <div class="stat-left">
-            <div class="stat-row">
-              <span id="viewStatLabel">我的请假：1个 已请假课时/总课时：</span>
+    <!-- 列表页 (第一张图) -->
+    <div id="pageList" class="page active">
+        <div class="header">
+            <div class="icons">
+                <span id="btnBackList">&lt;</span>
+                <span>&gt;</span>
             </div>
-            <div class="stat-row-large" id="viewTotalHours">0/828</div>
-            <div class="stat-todo" id="viewListTodo">待办事项：您当前有1个请假待销假</div>
-          </div>
-          <div class="stat-right-btns">
-            <button class="btn-refresh" id="btnRefresh">↻</button>
-            <button class="btn-add-leave" id="btnAddLeave">+</button>
-          </div>
+            <div>学员请假</div>
+            <div class="close">&times;</div>
         </div>
 
-        <!-- 列表卡片 -->
-        <div class="leave-card" id="listLeaveCard">
-          <div class="card-row">
-            <span class="card-label">请假人：</span>
-            <span class="card-value font-bold" id="viewCardName">张三</span>
-            <span class="badge-agreed" id="viewCardStatus">
-              <svg viewBox="0 0 1024 1024" width="10" height="10" fill="currentColor" style="margin-right: 2px;">
-                <path d="M912 190L383.6 718.4 112 446.8l-70.4 70.4 342 342L982.4 260.4z"></path>
-              </svg>
-              <span>已同意</span>
-            </span>
-          </div>
-          <div class="card-row">
-            <span class="card-label">班级：</span>
-            <span class="card-value" id="viewCardClass">移动应用开发2025级1班</span>
-          </div>
-          <div class="card-row">
-            <span class="card-label">请假原因：</span>
-            <span class="card-value" id="viewCardReasonOuter">
-              因私事 <span class="text-gray" id="viewCardReasonInner">因病请假就医</span>
-            </span>
-          </div>
-          <div class="card-row">
-            <span class="card-label">请假时间：</span>
-            <span class="card-value font-digit" id="viewCardTime">2026-06-13 11:30~2026-06-14 21:30</span>
-          </div>
-          <div class="card-row">
-            <span class="card-label">课时：</span>
-            <span class="card-value font-digit" id="viewCardHours">0</span>
-          </div>
+        <div class="summary-section">
+            <div class="summary-text">
+                <div id="viewStatLabel">我的请假: <span id="viewTotalLeaves">1</span>个 &nbsp; 已请假课时/总课时: <span id="viewTotalHours">0/828</span></div>
+                <div class="warning" id="viewListTodo">待办事项: 您当前有1个请假待销假</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-blue" id="btnRefresh">&#8635;</button>
+                <button class="btn-green" id="btnAddLeave">+</button>
+            </div>
         </div>
 
-        <div class="list-bottom-line">
-          <span>底线附近（共<span id="viewTotalLeavesBottom">1</span>条数据）</span>
+        <div class="list-container">
+            <div class="card" id="listLeaveCard">
+                <div class="card-row">请假人: <span id="viewCardName">李明</span> <span class="tag-success" id="viewCardStatus">✔ 已同意</span></div>
+                <div class="card-row">班级: <span id="viewCardClass">计算机科学2024级1班</span></div>
+                <div class="card-row">请假原因: <span id="viewCardReasonOuter">因病 <span class="grey-text" id="viewCardReasonInner">突发高烧，需前往医院就诊</span></span></div>
+                <div class="card-row">请假时间: <span id="viewCardTime">2026-07-15 08:30~2026-07-16 17:30</span></div>
+                <div class="card-row">课时: <span id="viewCardHours">0</span></div>
+            </div>
+            <div class="footer-line">底线附近 (共<span id="viewTotalLeavesBottom">1</span>条数据)</div>
         </div>
-        <!-- 配置悬浮按钮 -->
+
         <button class="float-config-btn btn-open-config" title="点击配置数据">🔧 配置数据</button>
-      </div>
     </div>
 
-
-    <!-- ==================== 页面二：详情页/销假页 ==================== -->
-    <div id="pageDetail" class="page-view">
-      <!-- 微信内嵌导航栏 -->
-      <header class="wx-header">
-        <div class="header-left">
-          <span class="header-back" id="btnGoBack">&lt;</span>
-          <span class="header-forward disabled">&gt;</span>
-        </div>
-        <div class="header-title">学员请假</div>
-        <div class="header-right">✕</div>
-      </header>
-
-      <div class="phone-scroll-content detail-padding">
-        
-        <!-- 审批状态与进度 -->
-        <div class="detail-status-section">
-          <div class="status-left">
-            <span>状态：</span>
-            <span class="badge-agreed" id="viewDetailStatus">
-              <svg viewBox="0 0 1024 1024" width="10" height="10" fill="currentColor" style="margin-right: 2px;">
-                <path d="M912 190L383.6 718.4 112 446.8l-70.4 70.4 342 342L982.4 260.4z"></path>
-              </svg>
-              <span>已同意</span>
-            </span>
-          </div>
-          <div class="status-right">
-            <span>审批进度：</span>
-            <span class="text-blue font-digit" id="viewDetailProgress">1/1</span>
-          </div>
-        </div>
-
-        <!-- 审批流程节点 -->
-        <div class="approval-flow-section">
-          <div class="flow-node">
-            <span class="node-title" id="viewApprovalFlowTitle">辅导员</span>
-            <div class="node-circle active" id="viewApprovalFlowNode">✔</div>
-          </div>
-        </div>
-
-        <!-- 审批意见 -->
-        <div class="comment-section">
-          <div class="comment-title">审批意见：</div>
-          <div class="comment-content">
-            <span class="text-blue" id="viewAuditor">王老师</span>：<span class="text-blue font-digit" id="viewAuditTime">(2026-06-09 14:33:44)</span>
-          </div>
-        </div>
-
-        <!-- 基本表单项 -->
-        <div class="detail-info-list">
-          <div class="info-item">
-            <span class="info-label">姓名</span>
-            <span class="info-value" id="viewDetailName">张三</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">班级</span>
-            <span class="info-value" id="viewDetailClass">移动应用开发2025级1班</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">开始时间</span>
-            <span class="info-value font-digit" id="viewDetailStartTime">2026-06-13 11:30</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">结束时间</span>
-            <span class="info-value font-digit" id="viewDetailEndTime">2026-06-14 21:30</span>
-          </div>
-        </div>
-
-        <!-- 温馨提示 -->
-        <div class="tips-box">
-          <div class="tips-title">温馨提示：</div>
-          <div class="tips-item">
-            <span class="tips-icon">i</span>
-            <span class="tips-text">午休、晚餐、晚自习、课后时间、周六下午、周日白天，不计入1/7的请假课时。</span>
-          </div>
-          <div class="tips-item">
-            <span class="tips-icon warning">i</span>
-            <span class="tips-text">学员销假由辅导员选择节次。</span>
-          </div>
-        </div>
-
-        <!-- 每日明细卡片容器 -->
-        <div id="dailyCardsContainer">
-          <!-- 动态渲染 -->
-        </div>
-
-        <!-- 其他请假表单项 -->
-        <div class="detail-info-list extra-list">
-          <div class="info-item">
-            <span class="info-label">是否离校</span>
-            <span class="info-value font-bold" id="viewDetailLeaveSchool">是</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">是否离开泰安</span>
-            <span class="info-value font-bold" id="viewDetailLeaveCity">是</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">请假类型</span>
-            <span class="info-value" id="viewDetailType">因私事</span>
-          </div>
-          <div class="info-item align-start">
-            <span class="info-label">请假事由</span>
-            <span class="info-value" id="viewDetailReason">因病请假就医</span>
-          </div>
-          
-          <!-- 图片附件 (点击图片触发上传) -->
-          <div class="info-item align-start border-none">
-            <span class="info-label">图片附件</span>
-            <div class="info-value image-align-right">
-              <img class="img-preview" id="imgAttachment" src="default_stamp.png" alt="图片附件" title="点击更换图片">
-              <input type="file" id="fileAttachment" accept="image/*" style="display: none;">
+    <!-- 详情页 (第二张图) -->
+    <div id="pageDetail" class="page">
+        <div class="header">
+            <div class="icons">
+                <span id="btnGoBack">&lt;</span>
+                <span>&gt;</span>
             </div>
-          </div>
-          
-          <!-- 销假附件 -->
-          <div class="info-item align-start border-none">
-            <span class="info-label">* 销假附件</span>
-            <div class="info-value image-align-right">
-              <div class="placeholder-upload-box" id="boxXjAttachment" title="点击更换图片">
-                <img class="img-preview" id="imgXjAttachment" style="display: none;">
-                <svg viewBox="0 0 1024 1024" width="36" height="36" fill="#cccccc" class="icon-placeholder">
-                  <path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202zm0-324c-68 0-122 54-122 122s54 122 122 122 122-54 122-122-54-122-122-122z"></path>
-                </svg>
-              </div>
-              <input type="file" id="fileXjAttachment" accept="image/*" style="display: none;">
-            </div>
-          </div>
-
-          <!-- 销假凭证 -->
-          <div class="info-item align-start border-none">
-            <span class="info-label">* 销假凭证</span>
-            <div class="info-value image-align-right">
-              <div class="placeholder-camera-box" id="boxXjCert" title="点击更换图片">
-                <img class="img-preview" id="imgXjCert" style="display: none;">
-                <svg viewBox="0 0 1024 1024" width="30" height="30" fill="#a4a4a4" class="icon-placeholder">
-                  <path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202z"></path>
-                </svg>
-              </div>
-              <input type="file" id="fileXjCert" accept="image/*" style="display: none;">
-            </div>
-          </div>
-
-          <!-- 销假描述 -->
-          <div class="info-item border-none">
-            <span class="info-label">销假描述</span>
-            <span class="info-value text-gray-placeholder">路过地点、乘坐交通工具等信息</span>
-          </div>
+            <div>学员请假</div>
+            <div class="close">&times;</div>
         </div>
 
-        <!-- 底部销假按钮 -->
-        <div class="detail-action-footer">
-          <button class="btn-xj" type="button">销假</button>
+        <div class="detail-status">
+            <div class="status-header">
+                <div>状态: <span class="tag-success" id="viewDetailStatus">✔ 已同意</span></div>
+                <div class="cyan-text">审批进度: <span id="viewDetailProgress">1/1</span> <br><div style="text-align:right; margin-top:5px;">辅导员 <span style="background:#5cb85c; color:white; border-radius:50%; padding:0 3px; font-size:10px;">✔</span></div></div>
+            </div>
+            <div class="approval-info">
+                <div>审批意见:</div>
+                <div class="cyan-text"><span id="viewAuditor">王老师</span>: (<span id="viewAuditTime">2026-07-14 09:15:22</span>)</div>
+            </div>
         </div>
-        <!-- 配置悬浮按钮 -->
+
+        <div class="form-list">
+            <div class="form-item">
+                <div class="form-label">姓名</div>
+                <span class="form-value" id="viewDetailName">张三</span>
+            </div>
+            <div class="form-item">
+                <div class="form-label">班级</div>
+                <span class="form-value" id="viewDetailClass">数字化建运1班</span>
+            </div>
+            <div class="form-item">
+                <div class="form-label">开始时间</div>
+                <span class="form-value" id="viewDetailStartTime">2026-07-01 08:30</span>
+            </div>
+            <div class="form-item">
+                <div class="form-label">结束时间</div>
+                <span class="form-value" id="viewDetailEndTime">2026-07-02 21:30</span>
+            </div>
+        </div>
+
+        <div class="notice-box">
+            <div>温馨提示:</div>
+            <div><i>i</i> 午休、晚餐、晚自习、课后时间、周六下午、周日白天，不计入1/7的请假课时。</div>
+            <div style="color: #d35400; margin-top: 5px;"><i>i</i> 学员销假由辅导员选择节次。</div>
+        </div>
+
+        <div class="detail-padding">
+            <div id="dailyCardsContainer"></div>
+
+            <div class="form-list">
+                <div class="form-item">
+                    <div class="form-label">是否离校</div>
+                    <span class="form-value" id="viewDetailLeaveSchool">否</span>
+                </div>
+                <div class="form-item">
+                    <div class="form-label">是否离开本市</div>
+                    <span class="form-value" id="viewDetailLeaveCity">否</span>
+                </div>
+                <div class="form-item">
+                    <div class="form-label">请假类型</div>
+                    <span class="form-value" id="viewDetailType">因病</span>
+                </div>
+                <div class="form-item">
+                    <div class="form-label">请假事由</div>
+                    <span class="form-value" id="viewDetailReason">突发高烧，需前往医院就诊</span>
+                </div>
+            </div>
+
+            <div class="upload-item">
+                <div class="form-label">图片附件</div>
+                <div class="upload-box" style="background:#fff; border-color:#eee;">
+                    <img class="img-preview" id="imgAttachment" src="default_stamp.png" alt="图片附件" title="点击更换图片" style="width:100%;height:100%;object-fit:cover;">
+                    <input type="file" id="fileAttachment" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <div class="upload-item">
+                <div class="form-label"><span class="required">*</span>销假附件</div>
+                <div class="upload-box" id="boxXjAttachment" style="cursor:pointer;">
+                    <img class="img-preview" id="imgXjAttachment" style="display:none;width:100%;height:100%;object-fit:cover;">
+                    <svg viewBox="0 0 1024 1024" width="36" height="36" fill="#cccccc" class="icon-placeholder"><path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202zm0-324c-68 0-122 54-122 122s54 122 122 122 122-54 122-122-54-122-122-122z"></path></svg>
+                    <input type="file" id="fileXjAttachment" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <div class="upload-item">
+                <div class="form-label"><span class="required">*</span>销假凭证</div>
+                <div class="upload-box" id="boxXjCert" style="cursor:pointer;">
+                    <img class="img-preview" id="imgXjCert" style="display:none;width:100%;height:100%;object-fit:cover;">
+                    <svg viewBox="0 0 1024 1024" width="30" height="30" fill="#a4a4a4" class="icon-placeholder"><path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202z"></path></svg>
+                    <input type="file" id="fileXjCert" accept="image/*" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-item" style="background: #fff;">
+                <div class="form-label">销假描述</div>
+                <span class="form-value" id="viewXjDesc" style="color: #999;">路过地点、乘坐交通工具等信息</span>
+            </div>
+
+            <div class="submit-btn">销假</div>
+        </div>
+
         <button class="float-config-btn btn-open-config" title="点击配置数据">🔧 配置数据</button>
-      </div>
     </div>
 
-
-    <!-- ==================== 页面三：手机配置抽屉弹窗 (内置隐藏) ==================== -->
+    <!-- ==================== 配置抽屉弹窗 ==================== -->
     <div id="configDrawer" class="config-drawer">
-      <div class="drawer-header">
-        <h3>请假卡片配置数据</h3>
-        <button class="btn-close-drawer" id="btnCloseDrawer">✕</button>
-      </div>
-
-      <div class="drawer-tabs">
-        <button class="drawer-tab-btn active" data-tab="dt-basic">基本信息</button>
-        <button class="drawer-tab-btn" data-tab="dt-schedule">每日课时</button>
-        <button class="drawer-tab-btn" data-tab="dt-system">审批状态</button>
-      </div>
-
-      <div class="drawer-content">
-        <!-- Tab 1: 基本信息 -->
-        <div class="drawer-tab-panel active" id="dt-basic">
-          <div class="drawer-form-group">
-            <label>当前显示页面</label>
-            <div class="drawer-btn-group">
-              <button type="button" class="page-toggle-btn active" id="drawerBtnList">列表页</button>
-              <button type="button" class="page-toggle-btn" id="drawerBtnDetail">详情页</button>
-            </div>
-          </div>
-          <div class="drawer-form-group">
-            <label for="cfgName">学生姓名</label>
-            <input type="text" id="cfgName" placeholder="例如：张三">
-          </div>
-          <div class="drawer-form-group">
-            <label for="cfgClass">班级名称</label>
-            <input type="text" id="cfgClass" placeholder="例如：软件工程2025级1班">
-          </div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgType">请假类型</label>
-              <input type="text" id="cfgType" placeholder="因私事 / 因公">
-            </div>
-            <div class="drawer-form-group">
-              <label for="cfgReason">简短原因 (列表)</label>
-              <input type="text" id="cfgReason" placeholder="家里有事">
-            </div>
-          </div>
-          <div class="drawer-form-group">
-            <label for="cfgReasonDetail">请假事由 (详情)</label>
-            <textarea id="cfgReasonDetail" rows="2" placeholder="写明详细的请假事由"></textarea>
-          </div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgStartTime">开始时间</label>
-              <input type="text" id="cfgStartTime">
-            </div>
-            <div class="drawer-form-group">
-              <label for="cfgEndTime">结束时间</label>
-              <input type="text" id="cfgEndTime">
-            </div>
-          </div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgLeaveSchool">是否离校</label>
-              <select id="cfgLeaveSchool">
-                <option value="是">是</option>
-                <option value="否">否</option>
-              </select>
-            </div>
-            <div class="drawer-form-group">
-              <label for="cfgLeaveCity">是否离开泰安</label>
-              <select id="cfgLeaveCity">
-                <option value="是">是</option>
-                <option value="否">否</option>
-              </select>
-            </div>
-          </div>
+        <div class="drawer-header">
+            <h3>请假卡片配置数据</h3>
+            <button class="btn-close-drawer" id="btnCloseDrawer">✕</button>
         </div>
 
-        <!-- Tab 2: 每日课时明细 -->
-        <div class="drawer-tab-panel" id="dt-schedule">
-          <div class="drawer-section-title">
-            <span>每日请假细则</span>
-            <button type="button" class="cfg-btn-sm" id="cfgBtnAddDay">+ 增加一天</button>
-          </div>
-          <div id="cfgDaysContainer">
-            <!-- 动态生成天数卡片的编辑项目 -->
-          </div>
+        <div class="drawer-tabs">
+            <button class="drawer-tab-btn active" data-tab="dt-basic">基本信息</button>
+            <button class="drawer-tab-btn" data-tab="dt-schedule">每日课时</button>
+            <button class="drawer-tab-btn" data-tab="dt-system">审批状态</button>
         </div>
 
-        <!-- Tab 3: 审批状态与统计 -->
-        <div class="drawer-tab-panel" id="dt-system">
-          <div class="drawer-section-title">审批管理</div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgStatus">请假状态</label>
-              <select id="cfgStatus">
-                <option value="已同意">已同意</option>
-                <option value="审核中">审核中</option>
-                <option value="待销假">待销假</option>
-                <option value="已销假">已销假</option>
-              </select>
+        <div class="drawer-content">
+            <div class="drawer-tab-panel active" id="dt-basic">
+                <div class="drawer-form-group">
+                    <label>当前显示页面</label>
+                    <div class="drawer-btn-group">
+                        <button type="button" class="page-toggle-btn active" id="drawerBtnList">列表页</button>
+                        <button type="button" class="page-toggle-btn" id="drawerBtnDetail">详情页</button>
+                    </div>
+                </div>
+                <div class="drawer-form-group">
+                    <label for="cfgName">学生姓名</label>
+                    <input type="text" id="cfgName" placeholder="例如：张三">
+                </div>
+                <div class="drawer-form-group">
+                    <label for="cfgClass">班级名称</label>
+                    <input type="text" id="cfgClass" placeholder="例如：软件工程2025级1班">
+                </div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgType">请假类型</label>
+                        <input type="text" id="cfgType" placeholder="因私事 / 因公">
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgReason">简短原因 (列表)</label>
+                        <input type="text" id="cfgReason" placeholder="家里有事">
+                    </div>
+                </div>
+                <div class="drawer-form-group">
+                    <label for="cfgReasonDetail">请假事由 (详情)</label>
+                    <textarea id="cfgReasonDetail" rows="2" placeholder="写明详细的请假事由"></textarea>
+                </div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgStartTime">开始时间</label>
+                        <input type="text" id="cfgStartTime">
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgEndTime">结束时间</label>
+                        <input type="text" id="cfgEndTime">
+                    </div>
+                </div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgLeaveSchool">是否离校</label>
+                        <select id="cfgLeaveSchool">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgLeaveCity">是否离开泰安</label>
+                        <select id="cfgLeaveCity">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="drawer-form-group">
-              <label for="cfgProgress">审批进度</label>
-              <input type="text" id="cfgProgress" placeholder="1/1">
-            </div>
-          </div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgAuditor">审批人</label>
-              <input type="text" id="cfgAuditor">
-            </div>
-            <div class="drawer-form-group">
-              <label for="cfgAuditTime">审批时间</label>
-              <input type="text" id="cfgAuditTime">
-            </div>
-          </div>
 
-          <div class="drawer-section-title">列表统计</div>
-          <div class="drawer-form-row">
-            <div class="drawer-form-group">
-              <label for="cfgTotalLeaves">已请假次数</label>
-              <input type="number" id="cfgTotalLeaves">
+            <div class="drawer-tab-panel" id="dt-schedule">
+                <div class="drawer-section-title">
+                    <span>每日请假细则</span>
+                    <button type="button" class="cfg-btn-sm" id="cfgBtnAddDay">+ 增加一天</button>
+                </div>
+                <div id="cfgDaysContainer"></div>
             </div>
-            <div class="drawer-form-group">
-              <label for="cfgTotalHours">已假/总课时</label>
-              <input type="text" id="cfgTotalHours" placeholder="0/828">
+
+            <div class="drawer-tab-panel" id="dt-system">
+                <div class="drawer-section-title">审批管理</div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgStatus">请假状态</label>
+                        <select id="cfgStatus">
+                            <option value="已同意">已同意</option>
+                            <option value="审核中">审核中</option>
+                            <option value="待销假">待销假</option>
+                            <option value="已销假">已销假</option>
+                        </select>
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgProgress">审批进度</label>
+                        <input type="text" id="cfgProgress" placeholder="1/1">
+                    </div>
+                </div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgAuditor">审批人</label>
+                        <input type="text" id="cfgAuditor">
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgAuditTime">审批时间</label>
+                        <input type="text" id="cfgAuditTime">
+                    </div>
+                </div>
+
+                <div class="drawer-section-title">列表统计</div>
+                <div class="drawer-form-row">
+                    <div class="drawer-form-group">
+                        <label for="cfgTotalLeaves">已请假次数</label>
+                        <input type="number" id="cfgTotalLeaves">
+                    </div>
+                    <div class="drawer-form-group">
+                        <label for="cfgTotalHours">已假/总课时</label>
+                        <input type="text" id="cfgTotalHours" placeholder="0/828">
+                    </div>
+                </div>
+                <div class="drawer-form-group">
+                    <label for="cfgListTodo">待办文字</label>
+                    <input type="text" id="cfgListTodo">
+                </div>
             </div>
-          </div>
-          <div class="drawer-form-group">
-            <label for="cfgListTodo">待办文字</label>
-            <input type="text" id="cfgListTodo">
-          </div>
         </div>
-      </div>
 
-      <!-- 底部控制按钮 -->
-      <div class="drawer-footer">
-        <button class="drawer-btn btn-close-only" id="btnApplyClose">应用并关闭</button>
-        <button class="drawer-btn btn-screenshot" id="btnEnterScreenshot">📸 隐藏按钮并截图</button>
-        <button class="drawer-btn btn-reset-data" id="btnResetData">重置默认数据</button>
-      </div>
+        <div class="drawer-footer">
+            <button class="drawer-btn btn-close-only" id="btnApplyClose">应用并关闭</button>
+            <button class="drawer-btn btn-screenshot" id="btnEnterScreenshot">📸 隐藏按钮并截图</button>
+            <button class="drawer-btn btn-reset-data" id="btnResetData">重置默认数据</button>
+        </div>
     </div>
 
-  </div>
+</div>
 
-  <script src="script.js?v=1.3"></script>
+<script>
+// ==================== 默认配置生成 ====================
+function getDefaultConfig() {
+    const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return {
+        name: "张三",
+        className: "数字化建运1班",
+        type: "因私事",
+        reason: "因病请假就医",
+        reasonDetail: "因身体不适需请假前往医院就医",
+        startTime: "2026-07-01 08:30",
+        endTime: "2026-07-02 21:30",
+        leaveSchool: "是",
+        leaveCity: "是",
+        totalLeaves: 1,
+        totalHours: "0/828",
+        listTodo: "您当前有1个请假待销假",
+        currentPage: "list",
+        status: "已同意",
+        progress: "1/1",
+        auditor: "王老师",
+        auditTime: "2026-06-27 09:15:22",
+        dailySchedule: [
+            {
+                id: "day_1",
+                date: "2026-07-01 周三 （只计上午3节课时）",
+                hours: 0,
+                allPeriods: ["1", "2", "3", "午休", "4", "5", "6", "晚自习"],
+                selectedPeriods: ["午休", "4", "5", "6", "晚自习"]
+            },
+            {
+                id: "day_2",
+                date: "2026-07-02 周四 （不计课时）",
+                hours: 0,
+                allPeriods: ["1", "2", "3", "午休", "4", "5", "6", "晚自习"],
+                selectedPeriods: ["1", "2", "3", "午休", "4", "5", "6", "晚自习"]
+            }
+        ],
+        attachmentImg: "default_stamp.png",
+        xjAttachmentImg: "",
+        xjCertImg: ""
+    };
+}
+
+let config = {};
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadConfig();
+    initDrawerTabs();
+    initDrawerPageSwitch();
+    initImageUploads();
+    initDrawerControllers();
+    initPageFlow();
+    renderLeavePage();
+});
+
+// 1. 读取本地存储数据
+function loadConfig() {
+    const saved = localStorage.getItem("leave_simulator_config_v2");
+    const defaultConfig = getDefaultConfig();
+    if (saved) {
+        try {
+            config = JSON.parse(saved);
+            config = { ...defaultConfig, ...config };
+            if (!config.dailySchedule || !Array.isArray(config.dailySchedule)) {
+                config.dailySchedule = JSON.parse(JSON.stringify(defaultConfig.dailySchedule));
+            } else {
+                config.dailySchedule.forEach(day => {
+                    if (!day.id) day.id = "day_" + Math.random().toString(36).substr(2, 9);
+                    if (!day.date) day.date = "未知日期";
+                    if (day.hours === undefined) day.hours = 0;
+                    if (!day.allPeriods || !Array.isArray(day.allPeriods)) {
+                        day.allPeriods = ["1", "2", "3", "午休", "4", "5", "6", "晚自习"];
+                    }
+                    if (!day.selectedPeriods || !Array.isArray(day.selectedPeriods)) {
+                        day.selectedPeriods = [];
+                    }
+                });
+            }
+        } catch (e) {
+            config = JSON.parse(JSON.stringify(defaultConfig));
+        }
+    } else {
+        config = JSON.parse(JSON.stringify(defaultConfig));
+    }
+}
+
+// 2. 渲染数据到页面
+function renderLeavePage() {
+    document.getElementById("viewTotalHours").innerText = config.totalHours;
+    document.getElementById("viewListTodo").innerText = `待办事项：${config.listTodo}`;
+    document.getElementById("viewTotalLeaves").innerText = config.totalLeaves;
+    document.getElementById("viewTotalLeavesBottom").innerText = config.totalLeaves;
+
+    document.getElementById("viewCardName").innerText = config.name;
+    document.getElementById("viewCardClass").innerText = config.className;
+    document.getElementById("viewCardReasonOuter").innerHTML = `${config.type} <span class="grey-text" id="viewCardReasonInner">${config.reason}</span>`;
+    document.getElementById("viewCardTime").innerText = `${config.startTime}~${config.endTime}`;
+
+    const totalDaysHours = config.dailySchedule.reduce((sum, item) => sum + parseInt(item.hours || 0), 0);
+    document.getElementById("viewCardHours").innerText = totalDaysHours;
+
+    const setStatusBadge = (el, status) => {
+        if (!el) return;
+        if (status === "已同意" || status === "已销假") {
+            el.className = "tag-success";
+            el.innerHTML = `✔ ${status}`;
+        } else {
+            el.className = "tag-success";
+            el.innerHTML = `${status}`;
+        }
+    };
+    setStatusBadge(document.getElementById("viewCardStatus"), config.status);
+    setStatusBadge(document.getElementById("viewDetailStatus"), config.status);
+
+    document.getElementById("viewDetailProgress").innerText = config.progress;
+    document.getElementById("viewAuditor").innerText = config.auditor;
+    document.getElementById("viewAuditTime").innerText = config.auditTime;
+
+    document.getElementById("viewDetailName").innerText = config.name;
+    document.getElementById("viewDetailClass").innerText = config.className;
+    document.getElementById("viewDetailStartTime").innerText = config.startTime;
+    document.getElementById("viewDetailEndTime").innerText = config.endTime;
+    document.getElementById("viewDetailLeaveSchool").innerText = config.leaveSchool;
+    document.getElementById("viewDetailLeaveCity").innerText = config.leaveCity;
+    document.getElementById("viewDetailType").innerText = config.type;
+    document.getElementById("viewDetailReason").innerText = config.reasonDetail;
+
+    renderDailyDetailCards();
+
+    const imgAttach = document.getElementById("imgAttachment");
+    if (imgAttach) imgAttach.src = config.attachmentImg || "default_stamp.png";
+
+    const setupImagePlaceholder = (imgId, boxId, base64) => {
+        const img = document.getElementById(imgId);
+        const box = document.getElementById(boxId);
+        if (!img || !box) return;
+        const icon = box.querySelector(".icon-placeholder");
+        if (base64) {
+            img.src = base64;
+            img.style.display = "block";
+            if (icon) icon.style.display = "none";
+            box.style.padding = "0";
+            box.style.border = "none";
+        } else {
+            img.style.display = "none";
+            if (icon) icon.style.display = "block";
+            box.style.padding = "";
+            box.style.border = "";
+        }
+    };
+    setupImagePlaceholder("imgXjAttachment", "boxXjAttachment", config.xjAttachmentImg);
+    setupImagePlaceholder("imgXjCert", "boxXjCert", config.xjCertImg);
+
+    const pageList = document.getElementById("pageList");
+    const pageDetail = document.getElementById("pageDetail");
+    const btnGoBack = document.getElementById("btnGoBack");
+
+    if (config.currentPage === "detail") {
+        pageList.classList.remove("active");
+        pageDetail.classList.add("active");
+        btnGoBack.style.opacity = "1";
+        btnGoBack.style.cursor = "pointer";
+    } else {
+        pageDetail.classList.remove("active");
+        pageList.classList.add("active");
+        btnGoBack.style.opacity = "0.3";
+        btnGoBack.style.cursor = "default";
+    }
+}
+
+// 渲染详情页里的课时卡片数据
+function renderDailyDetailCards() {
+    const container = document.getElementById("dailyCardsContainer");
+    if (!container) return;
+    container.innerHTML = "";
+
+    config.dailySchedule.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "time-card";
+
+        const title = document.createElement("div");
+        title.className = "time-card-header";
+        title.innerText = day.date;
+        card.appendChild(title);
+
+        const row = document.createElement("div");
+        row.className = "time-stats";
+        row.innerHTML = `课时: <span>${day.hours}</span> &nbsp;&nbsp; 已请假节次:`;
+        card.appendChild(row);
+
+        const tagsContainer = document.createElement("div");
+        tagsContainer.className = "time-tags";
+
+        day.allPeriods.forEach(period => {
+            const isSelected = day.selectedPeriods.includes(period);
+            const tag = document.createElement("span");
+            tag.className = "time-tag";
+            tag.style.opacity = isSelected ? "1" : "0.4";
+            tag.innerText = period;
+            tagsContainer.appendChild(tag);
+        });
+
+        card.appendChild(tagsContainer);
+        container.appendChild(card);
+    });
+}
+
+// 3. 页面跳转逻辑
+function initPageFlow() {
+    const listCard = document.getElementById("listLeaveCard");
+    const btnGoBack = document.getElementById("btnGoBack");
+
+    listCard.addEventListener("click", () => {
+        config.currentPage = "detail";
+        saveConfigOnly();
+        renderLeavePage();
+    });
+
+    btnGoBack.addEventListener("click", () => {
+        if (config.currentPage === "detail") {
+            config.currentPage = "list";
+            saveConfigOnly();
+            renderLeavePage();
+        }
+    });
+}
+
+// 4. 配置选项卡切换
+function initDrawerTabs() {
+    const tabs = document.querySelectorAll(".drawer-tab-btn");
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            const target = tab.getAttribute("data-tab");
+            const panels = document.querySelectorAll(".drawer-tab-panel");
+            panels.forEach(p => {
+                p.classList.remove("active");
+                if (p.id === target) p.classList.add("active");
+            });
+        });
+    });
+}
+
+// 配置抽屉内页面单选切换
+function initDrawerPageSwitch() {
+    const btnList = document.getElementById("drawerBtnList");
+    const btnDetail = document.getElementById("drawerBtnDetail");
+
+    btnList.addEventListener("click", () => {
+        btnList.classList.add("active");
+        btnDetail.classList.remove("active");
+    });
+
+    btnDetail.addEventListener("click", () => {
+        btnDetail.classList.add("active");
+        btnList.classList.remove("active");
+    });
+}
+
+// 5. 图片上传
+function initImageUploads() {
+    const triggerMap = [
+        { triggerId: "imgAttachment", inputId: "fileAttachment", key: "attachmentImg" },
+        { triggerId: "boxXjAttachment", inputId: "fileXjAttachment", key: "xjAttachmentImg" },
+        { triggerId: "boxXjCert", inputId: "fileXjCert", key: "xjCertImg" }
+    ];
+
+    triggerMap.forEach(item => {
+        const trigger = document.getElementById(item.triggerId);
+        const input = document.getElementById(item.inputId);
+        if (!trigger || !input) return;
+
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (document.getElementById("app").classList.contains("screenshot-mode")) return;
+            input.click();
+        });
+
+        input.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                config[item.key] = event.target.result;
+                saveConfigOnly();
+                renderLeavePage();
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+}
+
+// 6. 配置抽屉打开/关闭/应用
+function initDrawerControllers() {
+    const app = document.getElementById("app");
+    const drawer = document.getElementById("configDrawer");
+    const btnsOpen = document.querySelectorAll(".btn-open-config");
+    const btnClose = document.getElementById("btnCloseDrawer");
+    const btnApply = document.getElementById("btnApplyClose");
+    const btnScreenshot = document.getElementById("btnEnterScreenshot");
+    const btnReset = document.getElementById("btnResetData");
+
+    btnsOpen.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            drawer.classList.add("open");
+            fillDrawerFields();
+            renderDrawerDailyDays();
+        });
+    });
+
+    btnClose.addEventListener("click", () => {
+        drawer.classList.remove("open");
+    });
+
+    btnApply.addEventListener("click", () => {
+        collectDrawerFields();
+        saveConfigOnly();
+        renderLeavePage();
+        drawer.classList.remove("open");
+    });
+
+    btnScreenshot.addEventListener("click", () => {
+        collectDrawerFields();
+        saveConfigOnly();
+        renderLeavePage();
+        drawer.classList.remove("open");
+        app.classList.add("screenshot-mode");
+    });
+
+    btnReset.addEventListener("click", () => {
+        if (confirm("确定要重置请假条数据为默认值吗？")) {
+            localStorage.removeItem("leave_simulator_config_v2");
+            loadConfig();
+            renderLeavePage();
+            drawer.classList.remove("open");
+        }
+    });
+
+    app.addEventListener("dblclick", () => {
+        if (app.classList.contains("screenshot-mode")) {
+            app.classList.remove("screenshot-mode");
+            alert("已退出截图模式，配置按钮已显示。");
+        }
+    });
+
+    document.getElementById("cfgBtnAddDay").addEventListener("click", () => {
+        const dateStr = prompt("请输入日期标题：", "2026-06-15 周一");
+        if (!dateStr || !dateStr.trim()) return;
+
+        config.dailySchedule.push({
+            id: "day_" + Date.now(),
+            date: dateStr.trim(),
+            hours: 0,
+            allPeriods: ["1", "2", "3", "午休", "4", "5", "6", "晚自习"],
+            selectedPeriods: ["1", "2", "3"]
+        });
+        renderDrawerDailyDays();
+    });
+
+    document.getElementById("btnRefresh").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const btn = document.getElementById("btnRefresh");
+        btn.style.transform = "rotate(360deg)";
+        btn.style.transition = "transform 0.5s ease-in-out";
+        setTimeout(() => {
+            btn.style.transform = "none";
+            btn.style.transition = "none";
+            alert("列表刷新成功");
+        }, 500);
+    });
+
+    document.getElementById("btnAddLeave").addEventListener("click", (e) => {
+        e.stopPropagation();
+        alert("已发起新申请");
+    });
+}
+
+function saveConfigOnly() {
+    localStorage.setItem("leave_simulator_config_v2", JSON.stringify(config));
+}
+
+function fillDrawerFields() {
+    const btnList = document.getElementById("drawerBtnList");
+    const btnDetail = document.getElementById("drawerBtnDetail");
+    if (config.currentPage === "detail") {
+        btnDetail.classList.add("active");
+        btnList.classList.remove("active");
+    } else {
+        btnList.classList.add("active");
+        btnDetail.classList.remove("active");
+    }
+
+    document.getElementById("cfgName").value = config.name;
+    document.getElementById("cfgClass").value = config.className;
+    document.getElementById("cfgType").value = config.type;
+    document.getElementById("cfgReason").value = config.reason;
+    document.getElementById("cfgReasonDetail").value = config.reasonDetail;
+    document.getElementById("cfgStartTime").value = config.startTime;
+    document.getElementById("cfgEndTime").value = config.endTime;
+    document.getElementById("cfgLeaveSchool").value = config.leaveSchool;
+    document.getElementById("cfgLeaveCity").value = config.leaveCity;
+    document.getElementById("cfgStatus").value = config.status;
+    document.getElementById("cfgProgress").value = config.progress;
+    document.getElementById("cfgAuditor").value = config.auditor;
+    document.getElementById("cfgAuditTime").value = config.auditTime;
+    document.getElementById("cfgTotalLeaves").value = config.totalLeaves;
+    document.getElementById("cfgTotalHours").value = config.totalHours;
+    document.getElementById("cfgListTodo").value = config.listTodo;
+}
+
+function collectDrawerFields() {
+    const isDetail = document.getElementById("drawerBtnDetail").classList.contains("active");
+    config.currentPage = isDetail ? "detail" : "list";
+
+    config.name = document.getElementById("cfgName").value;
+    config.className = document.getElementById("cfgClass").value;
+    config.type = document.getElementById("cfgType").value;
+    config.reason = document.getElementById("cfgReason").value;
+    config.reasonDetail = document.getElementById("cfgReasonDetail").value;
+    config.startTime = document.getElementById("cfgStartTime").value;
+    config.endTime = document.getElementById("cfgEndTime").value;
+    config.leaveSchool = document.getElementById("cfgLeaveSchool").value;
+    config.leaveCity = document.getElementById("cfgLeaveCity").value;
+    config.status = document.getElementById("cfgStatus").value;
+    config.progress = document.getElementById("cfgProgress").value;
+    config.auditor = document.getElementById("cfgAuditor").value;
+    config.auditTime = document.getElementById("cfgAuditTime").value;
+    config.totalLeaves = parseInt(document.getElementById("cfgTotalLeaves").value) || 0;
+    config.totalHours = document.getElementById("cfgTotalHours").value;
+    config.listTodo = document.getElementById("cfgListTodo").value;
+
+    const cardElements = document.querySelectorAll(".cfg-day-edit-card");
+    const newSchedule = [];
+    if (!config.dailySchedule || !Array.isArray(config.dailySchedule)) {
+        config.dailySchedule = [];
+    }
+
+    cardElements.forEach(cardEl => {
+        const id = cardEl.getAttribute("data-day-id");
+        const date = cardEl.querySelector(".cfg-date-title-input").value;
+        const hours = parseInt(cardEl.querySelector(".cfg-hours-input").value) || 0;
+        const checkedPeriods = [];
+        const checkboxes = cardEl.querySelectorAll(".cfg-checkbox-grid input[type='checkbox']");
+        checkboxes.forEach(cb => {
+            if (cb.checked) checkedPeriods.push(cb.value);
+        });
+        const originalDay = config.dailySchedule.find(d => d.id === id);
+        const allPeriods = originalDay ? originalDay.allPeriods : ["1", "2", "3", "午休", "4", "5", "6", "晚自习"];
+
+        newSchedule.push({ id, date, hours, allPeriods, selectedPeriods: checkedPeriods });
+    });
+
+    config.dailySchedule = newSchedule;
+}
+
+function renderDrawerDailyDays() {
+    const container = document.getElementById("cfgDaysContainer");
+    container.innerHTML = "";
+
+    config.dailySchedule.forEach((day, index) => {
+        const card = document.createElement("div");
+        card.className = "cfg-day-edit-card";
+        card.setAttribute("data-day-id", day.id);
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "cfg-btn-delete-day";
+        btnDel.innerText = "删除";
+        btnDel.type = "button";
+        btnDel.addEventListener("click", () => {
+            config.dailySchedule.splice(index, 1);
+            renderDrawerDailyDays();
+        });
+        card.appendChild(btnDel);
+
+        const groupTitle = document.createElement("div");
+        groupTitle.className = "drawer-form-group";
+        groupTitle.innerHTML = `<label>日期及标题</label><input type="text" class="cfg-date-title-input" value="${day.date.replace(/"/g, '&quot;')}">`;
+        card.appendChild(groupTitle);
+
+        const groupHours = document.createElement("div");
+        groupHours.className = "drawer-form-group";
+        groupHours.innerHTML = `<label>当前课时数</label><input type="number" class="cfg-hours-input" value="${day.hours}">`;
+        card.appendChild(groupHours);
+
+        const groupPeriods = document.createElement("div");
+        groupPeriods.className = "drawer-form-group";
+        groupPeriods.innerHTML = `<label>已请假节次 (勾选表示已请假)</label>`;
+
+        const grid = document.createElement("div");
+        grid.className = "cfg-checkbox-grid";
+
+        day.allPeriods.forEach(period => {
+            const isChecked = day.selectedPeriods.includes(period);
+            const label = document.createElement("label");
+            label.className = "cfg-checkbox-label" + (isChecked ? " checked" : "");
+            label.innerHTML = `<input type="checkbox" value="${period}" ${isChecked ? "checked" : ""}> <span>${period}</span>`;
+
+            const checkbox = label.querySelector("input");
+            checkbox.addEventListener("change", (e) => {
+                if (e.target.checked) {
+                    label.classList.add("checked");
+                } else {
+                    label.classList.remove("checked");
+                }
+            });
+            grid.appendChild(label);
+        });
+
+        groupPeriods.appendChild(grid);
+        card.appendChild(groupPeriods);
+        container.appendChild(card);
+    });
+}
+</script>
 </body>
 </html>

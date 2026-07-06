@@ -1,14 +1,3 @@
-// 默认的非敏感请假条数据
-const DEFAULT_CONFIG = {
-  // 基本信息
-  name: "张三",
-  className: "移动应用开发2025级1班",
-  type: "因私事",
-  reason: "因病请假就医",
-  reasonDetail: "因身体不适需请假前往医院就医",
-  startTime: "2026-06-13 11:30",
-  endTime: "2026-06-14 21:30",
-  leaveSchool: "是",
 // 动态生成默认的非敏感请假条数据（基于当前系统时间）
 function getDefaultConfig() {
   const now = new Date();
