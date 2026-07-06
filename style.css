@@ -1,0 +1,872 @@
+/* ==================== 1. 全局与核心容器 ==================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body {
+  background-color: #ededed;
+  color: #191919;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+#app {
+  width: 100%;
+  max-width: 480px; /* 在 PC 端限宽，模拟手机比例 */
+  height: 100vh;
+  background-color: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  #app {
+    max-width: 100%;
+    box-shadow: none;
+  }
+}
+
+/* 页面切换 */
+.page-view {
+  display: none;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #f7f7f7;
+  z-index: 10;
+}
+
+.page-view.active {
+  display: flex;
+}
+
+/* 滚动区域 */
+.phone-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: #f7f7f7;
+}
+
+.phone-scroll-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==================== 2. 微信导航栏 (高保真) ==================== */
+.wx-header {
+  height: 46px;
+  background-color: #f7f7f7;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 20px;
+  color: #191919;
+}
+
+.header-back {
+  cursor: pointer;
+  padding-right: 6px;
+  font-weight: 300;
+}
+
+.header-back.disabled {
+  color: #b3b3b3;
+  cursor: default;
+}
+
+.header-forward.disabled {
+  color: #d6d6d6;
+  cursor: default;
+}
+
+.header-title {
+  font-size: 16.5px;
+  font-weight: 500;
+  color: #191919;
+  letter-spacing: 0.2px;
+}
+
+.header-right {
+  font-size: 16px;
+  color: #191919;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+/* ==================== 3. 页面一：列表页 ==================== */
+.list-stat-box {
+  background-color: #ffffff;
+  padding: 18px 16px;
+  border-bottom: 0.5px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.stat-left {
+  flex: 1;
+}
+
+.stat-row {
+  font-size: 13.5px;
+  color: #000000;
+}
+
+.stat-row-large {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000000;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.stat-todo {
+  font-size: 11.5px;
+  color: #ed7b1d;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.stat-right-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-refresh,
+.btn-add-leave {
+  border: none;
+  width: 44px;
+  height: 38px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.btn-refresh {
+  background-color: #2b85e4;
+}
+
+.btn-add-leave {
+  background-color: #70c140;
+  font-weight: bold;
+}
+
+/* 列表卡片 */
+.leave-card {
+  background-color: #ffffff;
+  border: 0.5px solid #e0dfdb;
+  border-radius: 8px;
+  margin: 0 10px 16px 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+  cursor: pointer;
+}
+
+.card-row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.card-label {
+  color: #000000;
+  width: 76px;
+  flex-shrink: 0;
+}
+
+.card-value {
+  color: #000000;
+  flex: 1;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.font-digit {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.text-gray {
+  color: #777777;
+  font-size: 12.5px;
+  margin-left: 4px;
+}
+
+/* badge 状态标签 */
+.badge-agreed {
+  background-color: #eaf8f2;
+  color: #05c160;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 0.5px solid #c7f0db;
+  margin-left: 8px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+}
+
+.badge-orange {
+  background-color: #fff6eb;
+  color: #ed7b1d;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 0.5px solid #fadbb4;
+  margin-left: 8px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+}
+
+.list-bottom-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 16px;
+  position: relative;
+}
+
+.list-bottom-line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.5px;
+  background-color: #dedede;
+  z-index: 1;
+}
+
+.list-bottom-line span {
+  position: relative;
+  background-color: #f7f7f7;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #999999;
+  z-index: 2;
+}
+
+/* ==================== 4. 页面二：详情页 ==================== */
+.detail-padding {
+  padding-bottom: 75px; /* 为底部销假按钮留白 */
+}
+
+/* 审批进度 */
+.detail-status-section {
+  background-color: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.5px solid #eaeaea;
+  font-size: 13.5px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+}
+
+.text-blue {
+  color: #2b85e4;
+}
+
+/* 审批流程节点 */
+.approval-flow-section {
+  background-color: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 0.5px solid #eaeaea;
+}
+
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.node-title {
+  font-size: 11px;
+  color: #191919;
+}
+
+.node-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #d8d8d8;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.node-circle.active {
+  background-color: #09bb07;
+}
+
+/* 审批意见 */
+.comment-section {
+  background-color: #ffffff;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  border-bottom: 0.5px solid #eaeaea;
+  margin-bottom: 10px;
+}
+
+.comment-title {
+  color: #191919;
+  margin-bottom: 4px;
+}
+
+.comment-content {
+  color: #191919;
+  line-height: 1.4;
+}
+
+/* 表单信息列表 */
+.detail-info-list {
+  background-color: #ffffff;
+  padding-left: 16px;
+  border-top: 0.5px solid #eaeaea;
+  border-bottom: 0.5px solid #eaeaea;
+  margin-bottom: 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 16px 13px 0;
+  border-bottom: 0.5px solid #eaeaea;
+  font-size: 13.5px;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item.align-start {
+  align-items: flex-start;
+}
+
+.info-item.border-none {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #666666;
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #191919;
+  flex: 1;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.image-align-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 温馨提示 */
+.tips-box {
+  background-color: #fffde7;
+  border: 0.5px solid #f6edc7;
+  border-radius: 4px;
+  margin: 0 10px 14px 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tips-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #a27c1a;
+}
+
+.tips-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.tips-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #2b85e4;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tips-icon.warning {
+  background-color: #ed7b1d;
+}
+
+.tips-text {
+  font-size: 11.5px;
+  color: #a27c1a;
+  line-height: 1.4;
+}
+
+/* 每日请假卡片明细 */
+.daily-detail-card {
+  background-color: #ffffff;
+  border: 0.5px solid #00a896;
+  border-radius: 4px;
+  margin: 0 10px 12px 10px;
+  padding: 14px;
+}
+
+.daily-card-title {
+  font-size: 13.5px;
+  font-weight: bold;
+  color: #00a896;
+  margin-bottom: 8px;
+}
+
+.daily-card-row {
+  font-size: 12px;
+  color: #191919;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.daily-hours-num {
+  color: #ff4d4f;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.daily-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.daily-tag {
+  display: inline-block;
+  background-color: #e8f3fe;
+  color: #2b85e4;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 3px;
+  min-width: 50px;
+  text-align: center;
+  border: 0.5px solid transparent;
+  user-select: none;
+}
+
+/* 灰色的未选中状态 */
+.daily-tag.inactive {
+  background-color: #f5f5f5;
+  color: #aaaaaa;
+  border-color: transparent;
+}
+
+/* 表单末尾与图片 */
+.extra-list {
+  margin-bottom: 20px;
+}
+
+.text-gray-placeholder {
+  color: #c4c4c4;
+}
+
+.img-preview {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 0.5px solid #dedede;
+  cursor: pointer;
+}
+
+.placeholder-upload-box,
+.placeholder-camera-box {
+  width: 48px;
+  height: 48px;
+  background-color: #f7f7f7;
+  border: 0.5px solid #dedede;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.placeholder-camera-box {
+  background-color: #f2f2f2;
+}
+
+/* 底部销假按钮栏 */
+.detail-action-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 10px 16px 20px 16px;
+  border-top: 0.5px solid #eaeaea;
+  z-index: 90;
+}
+
+.btn-xj {
+  width: 100%;
+  height: 40px;
+  background-color: #009688;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== 5. 手机内置全屏配置弹窗 Drawer ==================== */
+.config-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: none; /* 默认隐藏 */
+  flex-direction: column;
+  color: #e0e0e0;
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.config-drawer.open {
+  display: flex;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.drawer-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-header h3 {
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.btn-close-drawer {
+  background: none;
+  border: none;
+  color: #aaaaaa;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Drawer 选项卡 */
+.drawer-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #888888;
+  padding: 12px 0;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  text-align: center;
+}
+
+.drawer-tab-btn.active {
+  color: #009688;
+  border-bottom-color: #009688;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* 内容面板 */
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.drawer-tab-panel {
+  display: none;
+}
+
+.drawer-tab-panel.active {
+  display: block;
+}
+
+/* 抽屉表单排版 */
+.drawer-form-group {
+  margin-bottom: 14px;
+}
+
+.drawer-form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.drawer-form-row .drawer-form-group {
+  flex: 1;
+}
+
+.drawer-form-group label {
+  display: block;
+  font-size: 11.5px;
+  color: #888888;
+  margin-bottom: 5px;
+}
+
+.drawer-form-group input[type="text"],
+.drawer-form-group input[type="number"],
+.drawer-form-group textarea,
+.drawer-form-group select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.drawer-form-group input:focus,
+.drawer-form-group textarea:focus,
+.drawer-form-group select:focus {
+  outline: none;
+  border-color: #009688;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* 切换页面单选组 */
+.drawer-btn-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.page-toggle-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #888888;
+  padding: 6px 0;
+  font-size: 12.5px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.page-toggle-btn.active {
+  background-color: #009688;
+  color: #ffffff;
+}
+
+/* 动态天数课时配置卡片 */
+.drawer-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+}
+
+.cfg-btn-sm {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cfg-day-edit-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.cfg-btn-delete-day {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #ff4d4f;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.cfg-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.cfg-checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  color: #cccccc;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.cfg-checkbox-label input {
+  margin-right: 3px;
+}
+
+.cfg-checkbox-label.checked {
+  border-color: #009688;
+  background-color: rgba(0, 150, 136, 0.1);
+  color: #ffffff;
+}
+
+/* 抽屉底部控制按钮 */
+.drawer-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.drawer-btn {
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 4px;
+  font-size: 13.5px;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  font-weight: 500;
+}
+
+.btn-close-only {
+  background-color: #009688;
+  color: #ffffff;
+}
+
+.btn-screenshot {
+  background-color: #2b85e4;
+  color: #ffffff;
+}
+
+.btn-reset-data {
+  background-color: #331c1d;
+  color: #ff4d4f;
+  border: 1px solid rgba(255, 77, 79, 0.15);
+}
+
+/* ==================== 6. 右下角配置悬浮按钮 ==================== */
+.float-config-btn {
+  position: absolute;
+  bottom: 80px; /* 处于详情页销假按钮的上方避开遮挡 */
+  right: 16px;
+  background-color: rgba(0, 150, 136, 0.8);
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 截图模式样式下彻底隐藏悬浮配置按钮 */
+#app.screenshot-mode .float-config-btn {
+  display: none !important;
+}

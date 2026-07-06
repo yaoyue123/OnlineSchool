@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>学员请假</title>
+  <link rel="stylesheet" href="style.css?v=1.3">
+</head>
+<body>
+
+  <div id="app">
+    
+    <!-- ==================== 页面一：列表页 ==================== -->
+    <div id="pageList" class="page-view active">
+      <!-- 微信内嵌导航栏 -->
+      <header class="wx-header">
+        <div class="header-left">
+          <span class="header-back disabled">&lt;</span>
+          <span class="header-forward disabled">&gt;</span>
+        </div>
+        <div class="header-title">学员请假</div>
+        <div class="header-right">✕</div>
+      </header>
+
+      <div class="phone-scroll-content">
+        <!-- 统计信息 -->
+        <div class="list-stat-box">
+          <div class="stat-left">
+            <div class="stat-row">
+              <span id="viewStatLabel">我的请假：1个 已请假课时/总课时：</span>
+            </div>
+            <div class="stat-row-large" id="viewTotalHours">0/828</div>
+            <div class="stat-todo" id="viewListTodo">待办事项：您当前有1个请假待销假</div>
+          </div>
+          <div class="stat-right-btns">
+            <button class="btn-refresh" id="btnRefresh">↻</button>
+            <button class="btn-add-leave" id="btnAddLeave">+</button>
+          </div>
+        </div>
+
+        <!-- 列表卡片 -->
+        <div class="leave-card" id="listLeaveCard">
+          <div class="card-row">
+            <span class="card-label">请假人：</span>
+            <span class="card-value font-bold" id="viewCardName">张三</span>
+            <span class="badge-agreed" id="viewCardStatus">
+              <svg viewBox="0 0 1024 1024" width="10" height="10" fill="currentColor" style="margin-right: 2px;">
+                <path d="M912 190L383.6 718.4 112 446.8l-70.4 70.4 342 342L982.4 260.4z"></path>
+              </svg>
+              <span>已同意</span>
+            </span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">班级：</span>
+            <span class="card-value" id="viewCardClass">移动应用开发2025级1班</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">请假原因：</span>
+            <span class="card-value" id="viewCardReasonOuter">
+              因私事 <span class="text-gray" id="viewCardReasonInner">因病请假就医</span>
+            </span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">请假时间：</span>
+            <span class="card-value font-digit" id="viewCardTime">2026-06-13 11:30~2026-06-14 21:30</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">课时：</span>
+            <span class="card-value font-digit" id="viewCardHours">0</span>
+          </div>
+        </div>
+
+        <div class="list-bottom-line">
+          <span>底线附近（共<span id="viewTotalLeavesBottom">1</span>条数据）</span>
+        </div>
+        <!-- 配置悬浮按钮 -->
+        <button class="float-config-btn btn-open-config" title="点击配置数据">🔧 配置数据</button>
+      </div>
+    </div>
+
+
+    <!-- ==================== 页面二：详情页/销假页 ==================== -->
+    <div id="pageDetail" class="page-view">
+      <!-- 微信内嵌导航栏 -->
+      <header class="wx-header">
+        <div class="header-left">
+          <span class="header-back" id="btnGoBack">&lt;</span>
+          <span class="header-forward disabled">&gt;</span>
+        </div>
+        <div class="header-title">学员请假</div>
+        <div class="header-right">✕</div>
+      </header>
+
+      <div class="phone-scroll-content detail-padding">
+        
+        <!-- 审批状态与进度 -->
+        <div class="detail-status-section">
+          <div class="status-left">
+            <span>状态：</span>
+            <span class="badge-agreed" id="viewDetailStatus">
+              <svg viewBox="0 0 1024 1024" width="10" height="10" fill="currentColor" style="margin-right: 2px;">
+                <path d="M912 190L383.6 718.4 112 446.8l-70.4 70.4 342 342L982.4 260.4z"></path>
+              </svg>
+              <span>已同意</span>
+            </span>
+          </div>
+          <div class="status-right">
+            <span>审批进度：</span>
+            <span class="text-blue font-digit" id="viewDetailProgress">1/1</span>
+          </div>
+        </div>
+
+        <!-- 审批流程节点 -->
+        <div class="approval-flow-section">
+          <div class="flow-node">
+            <span class="node-title" id="viewApprovalFlowTitle">辅导员</span>
+            <div class="node-circle active" id="viewApprovalFlowNode">✔</div>
+          </div>
+        </div>
+
+        <!-- 审批意见 -->
+        <div class="comment-section">
+          <div class="comment-title">审批意见：</div>
+          <div class="comment-content">
+            <span class="text-blue" id="viewAuditor">王老师</span>：<span class="text-blue font-digit" id="viewAuditTime">(2026-06-09 14:33:44)</span>
+          </div>
+        </div>
+
+        <!-- 基本表单项 -->
+        <div class="detail-info-list">
+          <div class="info-item">
+            <span class="info-label">姓名</span>
+            <span class="info-value" id="viewDetailName">张三</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">班级</span>
+            <span class="info-value" id="viewDetailClass">移动应用开发2025级1班</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">开始时间</span>
+            <span class="info-value font-digit" id="viewDetailStartTime">2026-06-13 11:30</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">结束时间</span>
+            <span class="info-value font-digit" id="viewDetailEndTime">2026-06-14 21:30</span>
+          </div>
+        </div>
+
+        <!-- 温馨提示 -->
+        <div class="tips-box">
+          <div class="tips-title">温馨提示：</div>
+          <div class="tips-item">
+            <span class="tips-icon">i</span>
+            <span class="tips-text">午休、晚餐、晚自习、课后时间、周六下午、周日白天，不计入1/7的请假课时。</span>
+          </div>
+          <div class="tips-item">
+            <span class="tips-icon warning">i</span>
+            <span class="tips-text">学员销假由辅导员选择节次。</span>
+          </div>
+        </div>
+
+        <!-- 每日明细卡片容器 -->
+        <div id="dailyCardsContainer">
+          <!-- 动态渲染 -->
+        </div>
+
+        <!-- 其他请假表单项 -->
+        <div class="detail-info-list extra-list">
+          <div class="info-item">
+            <span class="info-label">是否离校</span>
+            <span class="info-value font-bold" id="viewDetailLeaveSchool">是</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">是否离开泰安</span>
+            <span class="info-value font-bold" id="viewDetailLeaveCity">是</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">请假类型</span>
+            <span class="info-value" id="viewDetailType">因私事</span>
+          </div>
+          <div class="info-item align-start">
+            <span class="info-label">请假事由</span>
+            <span class="info-value" id="viewDetailReason">因病请假就医</span>
+          </div>
+          
+          <!-- 图片附件 (点击图片触发上传) -->
+          <div class="info-item align-start border-none">
+            <span class="info-label">图片附件</span>
+            <div class="info-value image-align-right">
+              <img class="img-preview" id="imgAttachment" src="default_stamp.png" alt="图片附件" title="点击更换图片">
+              <input type="file" id="fileAttachment" accept="image/*" style="display: none;">
+            </div>
+          </div>
+          
+          <!-- 销假附件 -->
+          <div class="info-item align-start border-none">
+            <span class="info-label">* 销假附件</span>
+            <div class="info-value image-align-right">
+              <div class="placeholder-upload-box" id="boxXjAttachment" title="点击更换图片">
+                <img class="img-preview" id="imgXjAttachment" style="display: none;">
+                <svg viewBox="0 0 1024 1024" width="36" height="36" fill="#cccccc" class="icon-placeholder">
+                  <path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202zm0-324c-68 0-122 54-122 122s54 122 122 122 122-54 122-122-54-122-122-122z"></path>
+                </svg>
+              </div>
+              <input type="file" id="fileXjAttachment" accept="image/*" style="display: none;">
+            </div>
+          </div>
+
+          <!-- 销假凭证 -->
+          <div class="info-item align-start border-none">
+            <span class="info-label">* 销假凭证</span>
+            <div class="info-value image-align-right">
+              <div class="placeholder-camera-box" id="boxXjCert" title="点击更换图片">
+                <img class="img-preview" id="imgXjCert" style="display: none;">
+                <svg viewBox="0 0 1024 1024" width="30" height="30" fill="#a4a4a4" class="icon-placeholder">
+                  <path d="M854 214H710l-36-72H350l-36 72H170c-44 0-80 36-80 80v500c0 44 36 80 80 80h684c44 0 80-36 80-80V294c0-44-36-80-80-80zM512 730c-112 0-202-90-202-202s90-202 202-202 202 90 202 202-90 202-202 202z"></path>
+                </svg>
+              </div>
+              <input type="file" id="fileXjCert" accept="image/*" style="display: none;">
+            </div>
+          </div>
+
+          <!-- 销假描述 -->
+          <div class="info-item border-none">
+            <span class="info-label">销假描述</span>
+            <span class="info-value text-gray-placeholder">路过地点、乘坐交通工具等信息</span>
+          </div>
+        </div>
+
+        <!-- 底部销假按钮 -->
+        <div class="detail-action-footer">
+          <button class="btn-xj" type="button">销假</button>
+        </div>
+        <!-- 配置悬浮按钮 -->
+        <button class="float-config-btn btn-open-config" title="点击配置数据">🔧 配置数据</button>
+      </div>
+    </div>
+
+
+    <!-- ==================== 页面三：手机配置抽屉弹窗 (内置隐藏) ==================== -->
+    <div id="configDrawer" class="config-drawer">
+      <div class="drawer-header">
+        <h3>请假卡片配置数据</h3>
+        <button class="btn-close-drawer" id="btnCloseDrawer">✕</button>
+      </div>
+
+      <div class="drawer-tabs">
+        <button class="drawer-tab-btn active" data-tab="dt-basic">基本信息</button>
+        <button class="drawer-tab-btn" data-tab="dt-schedule">每日课时</button>
+        <button class="drawer-tab-btn" data-tab="dt-system">审批状态</button>
+      </div>
+
+      <div class="drawer-content">
+        <!-- Tab 1: 基本信息 -->
+        <div class="drawer-tab-panel active" id="dt-basic">
+          <div class="drawer-form-group">
+            <label>当前显示页面</label>
+            <div class="drawer-btn-group">
+              <button type="button" class="page-toggle-btn active" id="drawerBtnList">列表页</button>
+              <button type="button" class="page-toggle-btn" id="drawerBtnDetail">详情页</button>
+            </div>
+          </div>
+          <div class="drawer-form-group">
+            <label for="cfgName">学生姓名</label>
+            <input type="text" id="cfgName" placeholder="例如：张三">
+          </div>
+          <div class="drawer-form-group">
+            <label for="cfgClass">班级名称</label>
+            <input type="text" id="cfgClass" placeholder="例如：软件工程2025级1班">
+          </div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgType">请假类型</label>
+              <input type="text" id="cfgType" placeholder="因私事 / 因公">
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgReason">简短原因 (列表)</label>
+              <input type="text" id="cfgReason" placeholder="家里有事">
+            </div>
+          </div>
+          <div class="drawer-form-group">
+            <label for="cfgReasonDetail">请假事由 (详情)</label>
+            <textarea id="cfgReasonDetail" rows="2" placeholder="写明详细的请假事由"></textarea>
+          </div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgStartTime">开始时间</label>
+              <input type="text" id="cfgStartTime">
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgEndTime">结束时间</label>
+              <input type="text" id="cfgEndTime">
+            </div>
+          </div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgLeaveSchool">是否离校</label>
+              <select id="cfgLeaveSchool">
+                <option value="是">是</option>
+                <option value="否">否</option>
+              </select>
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgLeaveCity">是否离开泰安</label>
+              <select id="cfgLeaveCity">
+                <option value="是">是</option>
+                <option value="否">否</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: 每日课时明细 -->
+        <div class="drawer-tab-panel" id="dt-schedule">
+          <div class="drawer-section-title">
+            <span>每日请假细则</span>
+            <button type="button" class="cfg-btn-sm" id="cfgBtnAddDay">+ 增加一天</button>
+          </div>
+          <div id="cfgDaysContainer">
+            <!-- 动态生成天数卡片的编辑项目 -->
+          </div>
+        </div>
+
+        <!-- Tab 3: 审批状态与统计 -->
+        <div class="drawer-tab-panel" id="dt-system">
+          <div class="drawer-section-title">审批管理</div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgStatus">请假状态</label>
+              <select id="cfgStatus">
+                <option value="已同意">已同意</option>
+                <option value="审核中">审核中</option>
+                <option value="待销假">待销假</option>
+                <option value="已销假">已销假</option>
+              </select>
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgProgress">审批进度</label>
+              <input type="text" id="cfgProgress" placeholder="1/1">
+            </div>
+          </div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgAuditor">审批人</label>
+              <input type="text" id="cfgAuditor">
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgAuditTime">审批时间</label>
+              <input type="text" id="cfgAuditTime">
+            </div>
+          </div>
+
+          <div class="drawer-section-title">列表统计</div>
+          <div class="drawer-form-row">
+            <div class="drawer-form-group">
+              <label for="cfgTotalLeaves">已请假次数</label>
+              <input type="number" id="cfgTotalLeaves">
+            </div>
+            <div class="drawer-form-group">
+              <label for="cfgTotalHours">已假/总课时</label>
+              <input type="text" id="cfgTotalHours" placeholder="0/828">
+            </div>
+          </div>
+          <div class="drawer-form-group">
+            <label for="cfgListTodo">待办文字</label>
+            <input type="text" id="cfgListTodo">
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部控制按钮 -->
+      <div class="drawer-footer">
+        <button class="drawer-btn btn-close-only" id="btnApplyClose">应用并关闭</button>
+        <button class="drawer-btn btn-screenshot" id="btnEnterScreenshot">📸 隐藏按钮并截图</button>
+        <button class="drawer-btn btn-reset-data" id="btnResetData">重置默认数据</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js?v=1.3"></script>
+</body>
+</html>
